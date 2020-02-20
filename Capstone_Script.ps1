@@ -18,8 +18,15 @@ Get-AzResource | Export-Csv -Path C:\users\cello\Desktop\AzureResources.csv
 #Get storage blob log
 #Get-AzureStorageBlob -Container '$logs'
 
+#Requires AzureADPreview module
+
 #Connect to Azure AD
-#Connect-AzureAD
+Connect-AzureAD
+
 #Get Azure AD Sign-in Audit log
-#Uses AzureAD Module
-#Get-AzureADAuditSignInLogs -All | Export-Csv -Path C:\Users\cello\Desktop\AzureADSignIns.csv
+#Get-AzureADAuditSignInLogs -All $true | Export-Csv -Path C:\Users\cello\Desktop\AzureADSignIns.csv
+
+#Get Azure AD Audit Logs
+#Get-AzureAdAuditDirectoryLogs -All $true | Export-Csv -Path C:\users\cello\Desktop\AzureADAudit.csvSUM(B2:B20) -
+
+#Uses Azure.Storage
