@@ -19,8 +19,6 @@ Get-AzDisk | Export-Csv -Path $directory + "\AzureDisks.csv"
 #List all resources
 Get-AzResource | Export-Csv -Path $directory + "AzureResources.csv"
 
-#Get storage blob log
-#Get-AzureStorageBlob -Container '$logs'
 
 #Requires AzureADPreview module
 
@@ -33,7 +31,7 @@ Connect-AzureAD
 #Get Azure AD Audit Logs
 #Get-AzureAdAuditDirectoryLogs -All $true | Export-Csv -Path $directory + "\AzureADAudit.csv"
 
-#Uses Azure.Storage
+#Uses AzStorage
 #Lists all storage accounts in a subscription
 Get-AzStorageAccount | Select StorageAcccountName | Export-Csv -Path $directory + "AzureStorageAccounts.csv"
 
@@ -43,17 +41,24 @@ $storageAccountName = "capstoneblob1"
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccountName
 
 #Create a new storage context
-#Get the storage key
-$storageKey = Read-Host -Prompt "Please enter the key for the storage account"
+$storageContext = $storageAccount.Context
 
-$storageContext = New-AzureStorageContext -StorageAccountName "capstoneblob1" -StorageAccountKey $storageKey
+#Uses AzTable (Can't use AzureRM in script)
 
 #Get Linux Syslogs
-
-Get-AzureStorageTable -Name "LinuxSyslogVer2v0" -Context $context
+$syslogTable = (Get-AzStorageTable -Name LinuxSyslogVer2v0 -Context $storageContext).CloudTable
+Get-AzTableRow -Table $syslogTable | Export-Csv -Path $directory + "\syslog.csv"
 
 #Get Windows Event Logs
-Get-AzureStorageTable -Name "WADWindowsEventLogsTable" -Context $context
+$winEvtTable = (Get-AzStorageTable -Name WADWindowsEventLogsTable -Context $storageContext).CloudTable
+Get-AzTableRow -Table $winEvtTable | Export-Csv -Path $directory + "\winevt.csv"
+
+#Get storage analytics logs
+Get-AzStorageBlob -Blob "*.log" -Container '$logs' -Context $storageContext | Get-AzStorageBlobContent -Destination $directory + "\"
+
+#Get NSG Flow logs
+Get-AzStorageBlob -Context $context -Container 'insights-logs-networksecuritygroupflowevent' -Blob *.json | Get-AzStorageBlobContent -Destination $directory + "\"
+
 
 #Look into Get-AzureStorageServiceLoggingProperty
 # "" Get-AzureStorageShareStoredAccessPolicy
