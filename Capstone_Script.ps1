@@ -14,7 +14,6 @@ Connect-AzAccount -Credential $cred
 $directory = Read-Host -Prompt "Please enter a directory to save the files in"
 
 #Export Azure Activity Log to CSV
-#az monitor activity-log list | ConvertFrom-Json | Export-Csv -Path C:\AzureActivityLog1.csv
 Get-AzLog | Export-Csv -Path $directory + "\AzureActivity.csv"
 
 #List all VMs
@@ -26,7 +25,7 @@ Get-AzDisk | Export-Csv -Path $directory + "\AzureDisks.csv"
 #List all resources
 Get-AzResource | Export-Csv -Path $directory + "AzureResources.csv"
 
-#Uses AzStorage
+#Uses Az.Storage
 #Lists all storage accounts in a subscription
 Get-AzStorageAccount | Select StorageAcccountName | Export-Csv -Path $directory + "AzureStorageAccounts.csv"
 
@@ -50,14 +49,25 @@ $winEvtTable = (Get-AzStorageTable -Name WADWindowsEventLogsTable -Context $stor
 Get-AzTableRow -Table $winEvtTable | Export-Csv -Path $directory + "\winevt.csv"
 
 #Get storage analytics logs
-Get-AzStorageBlob -Blob "*.log" -Container '$logs' -Context $storageContext | Get-AzStorageBlobContent -Destination $directory + "\"
+Get-AzStorageBlob -Blob "*.log" -Container '$logs' -Context $storageContext | Get-AzStorageBlobContent -Destination $directory + "\SA Logging"
 
 #Get NSG Flow logs
-Get-AzStorageBlob -Context $context -Container 'insights-logs-networksecuritygroupflowevent' -Blob *.json | Get-AzStorageBlobContent -Destination $directory + "\"
+Get-AzStorageBlob -Context $context -Container 'insights-logs-networksecuritygroupflowevent' -Blob *.json | Get-AzStorageBlobContent -Destination $directory + "\NSG Logs"
 #use get-content and pipe to ConvertFrom-Json
 
 
-<#  WIP Azure AD Logs
+#Take a Azure Disk Snapshot
+$resourceGroupName = Read-Host -Prompt "What is the resource group?"
+$location = Read-Host -Prompt "What is the location?"
+$vmName = Read-Host -Prompt "What is the name of the VM?"
+$snapshotName = Read-Host -Prompt "What is the name for the snapshot, no spaces please"
+
+$vm = Get-AzVM -ResourceGroupName $resourcegroupName -Name $vmName
+$snapshot = New-AzSnapshotConfig -SourceUri $vm.StorageProfile.OsDisk.ManagedDisk.Id -Location $location -CreateOption copy
+New-AzSnapshot -Snapshot $snapshot -SnapshotName $snapshotName -ResourceGroupName $resourceGroupName
+
+
+#Azure AD Logs
 
 
 #Requires AzureADPreview module
@@ -66,6 +76,7 @@ Get-AzStorageBlob -Context $context -Container 'insights-logs-networksecuritygro
 $tenantId = Read-Host -Prompt "What is the tenant ID?"
 Connect-AzureAD -TenantId $tenantId
 
+#Register Azure AD App
 $appName = "Capstone_Script_Actual"
 $appUri = "https://localhost"
 $myapp = New-AzureADApplication -DisplayName $appName -IdentifierUris $appUri
@@ -78,8 +89,9 @@ Install-MSCloudIdUtilsModule
 $cert = New-SelfSignedCertificate -Subject "CN=MSGraph_ReportingAPI" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
 Export-Certificate -Cert $cert -FilePath "C:\Reporting\MSGraph_ReportingAPI.cer"
 $clientId = Read-Host -Prompt "What is the App Client ID?"
-$accessToken = Get-MSCloudIdMsGraphAccessTokenFromCert -TenantDomain $tenantId -ClientId $clientId -Certificate (dir Cert:\CurrentUser\my\936E0C3DD1BD14E84DCB17AC020F9A0D4BE3EA89)
-Invoke-MSC
+
+$accessToken = Get-MSCloudIdMsGraphAccessTokenFromCert -TenantDomain $tenantId -ClientId $clientId -Certificate (dir Cert:\CurrentUser\my\"$cert.Thumbprint")
+
 #Get Azure AD Sign-in Audit log
 #Get-AzureADAuditSignInLogs -All $true | Export-Csv -Path $directory + "\AzureADSignIns.csv"
 
@@ -87,10 +99,11 @@ Invoke-MSC
 #Get-AzureAdAuditDirectoryLogs -All $true | Export-Csv -Path $directory + "\AzureADAudit.csv"
 
 #Get all Azure AD Users
-Get-AzureADUser -All $true | Export-Csv -Path $destination + "\AzureADUsers.csv"
-#>
+#Get-AzureADUser -All $true | Export-Csv -Path $destination + "\AzureADUsers.csv"
+#
 
 
 #Look into Get-AzureStorageServiceLoggingProperty
 # "" Get-AzureStorageShareStoredAccessPolicy
 # "" "" StoragetableAccessPolicy
+
