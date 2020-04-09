@@ -1,24 +1,4 @@
-﻿<# Install neccessary modules
-
-Install-Module -Name Az -Scope CurrentUser
-Install-Module -Name AzTable -Scope CurrentUser
-Install-Module -Name AzureADPreview -Scope CurrentUser
-Install-Module MSCloudIdUtils
-Install-MSCloudIdUtilsModule
-
-#>
-
-<# Import the neccessary modules to potentially speed up program
-
-Import-Module -Name Az -Scope CurrentUser
-Import-Module -Name AzTable -Scope CurrentUser
-Import-Module -Name AzureADPreview -Scope CurrentUser
-Import-Module MSCloudIdUtils
-Import-MSCloudIdUtilsModule
-
-#>
-
-#Connect to Azure Account
+﻿#Connect to Azure Account
 #Uses Az PowerShell
 $cred = Get-Credential -Message "Please enter the credentials to connect to the Azure subscrription"
 Connect-AzAccount -Credential $cred
@@ -29,6 +9,7 @@ $directory = Read-Host -Prompt "Please enter a directory to save the files in"
 function Menu(){
     cls
     Write-Host "Azure Options:"
+    Write-Host "Please run option 15 before the first use"
     Write-Host "1. Get Azure Activity log"
     Write-Host "2. Get a list of all Azure VMs"
     Write-Host "3. Get a list of all disks for Azure VMs"
@@ -42,8 +23,9 @@ function Menu(){
     Write-Host "11. Register an Azure AD app (Required for options 11-13)"
     Write-Host "12. Retrieve a list of all Azure AD users"
     Write-Host "13. Retrieve the Azure AD audit log (Requires Azure AD P2)"
-    Write-Host "14. Retreive the Azure AD sign in log (Requires Azure AD P2)"
-    Write-Host "15. Quit"
+    Write-Host "14. Retrieve the Azure AD sign in log (Requires Azure AD P2)"
+    Write-Host "15. Install the neccesary modules (PLEASE RUN BEFORE FIRST USE)"
+    Write-Host "16. Quit"
 
     $userChoice = Read-Host -Prompt "Please select an option"
 
@@ -62,7 +44,8 @@ function Menu(){
         12 {AzureADUsers}
         13 {AzureADAudit}
         14 {AzureADSignIns}
-        15 {exit(0)}
+        15 {InstallAzureModules}
+        16 {exit(0)}
         default {Write-Host "Invalid choice"; sleep 3; menu}
     }
 }
@@ -304,11 +287,14 @@ function AzureADUsers(){
     sleep 3
     menu
 }
-#
 
-
-#Look into Get-AzureStorageServiceLoggingProperty
-# "" Get-AzureStorageShareStoredAccessPolicy
-# "" "" StoragetableAccessPolicy
+function InstallAzureModules(){
+    # Install neccessary modules
+    Install-Module -Name Az -Scope CurrentUser
+    Install-Module -Name AzTable -Scope CurrentUser
+    Install-Module -Name AzureADPreview -Scope CurrentUser
+    Install-Module MSCloudIdUtils -Scope CurrentUser
+    Install-MSCloudIdUtilsModule -Scope CurrentUser
+}
 
 Menu
