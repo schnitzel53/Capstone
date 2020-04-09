@@ -196,9 +196,22 @@ function AzureSnapshot(){
     $snapshotName = Read-Host -Prompt "What is the name for the snapshot, no spaces please"
     $snapVM = Get-AzVM -ResourceGroupName $snapResourceGroupName -Name $snapVmName
     $availableDisks = $snapVM.StorageProfile.DataDisks + $snapVM.StorageProfile.OsDisk
-    $availableDisks
-    Read-Host
-    $snapshot = New-AzSnapshotConfig -SourceUri $snapVM.StorageProfile.OsDisk.ManagedDisk.Id -Location $snapLocation -CreateOption copy
+    Write-Host "Available disks to snapshot:"
+    foreach ($disk in $availableDisks){
+        $disk.Name
+    }
+    $diskChoice = Read-Host -Prompt "Would you like to snapshot the [O]S disk or the [D]ata disks?"
+    if ($diskChoice == "d" or $diskChoice == "D"){
+        $snapshot = New-AzSnapshotConfig -SourceUri $snapVM.StorageProfile.DataDisk.ManagedDisk.Id -Location $snapLocation -CreateOption copy
+    }
+    elseif ($diskChoice == "o" or $diskChoice == "O"){
+        $snapshot = New-AzSnapshotConfig -SourceUri $snapVM.StorageProfile.OsDisk.ManagedDisk.Id -Location $snapLocation -CreateOption copy
+    }
+
+    else{
+        Write-Host "Invalid choice"
+        Menu
+    }
     New-AzSnapshot -Snapshot $snapshot -SnapshotName $snapshotName -ResourceGroupName $snapResourceGroupName
 
     Write-Host "Azure VM snapshot made with the name "$snapshotName""
