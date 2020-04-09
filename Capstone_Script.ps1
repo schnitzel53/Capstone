@@ -1,7 +1,7 @@
 ﻿#Connect to Azure Account
 #Uses Az PowerShell
-$cred = Get-Credential -Message "Please enter the credentials to connect to the Azure subscrription"
-Connect-AzAccount -Credential $cred
+#$cred = Get-Credential -Message "Please enter the credentials to connect to the Azure subscrription"
+#Connect-AzAccount -Credential $cred
 
 #Get directory to save files to
 $directory = Read-Host -Prompt "Please enter a directory to save the files in"
@@ -52,66 +52,72 @@ function Menu(){
 
 #Export Azure Activity Log to CSV
 function AzureActivityLog(){
-    Get-AzLog | Export-Csv -Path $directory + "\AzureActivity.csv"
+    Write-Host "Exporting the Azure Activity Log"
+    $activityFile = -join("$directory", "\AzureActivity.csv")
+    Get-AzLog | Export-Csv -Path $activityFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA256 $directory + "\AzureActivity.csv" | Tee-Object -FilePath "$directory + "\AzureActivityLogHash.txt""
+    Get-FileHash -Algorithm SHA256 $activityFile | Tee-Object -FilePath (-join("$directory", "\AzureActivityLogHash.txt"))
 
-    Write-Host "Azure Activity log downloaded to "$directory" +\AzureActivity.csv"
-    sleep 3
+    Write-Host "Azure Activity log downloaded to "$directory"\AzureActivity.csv"
+    sleep 5
     menu
 }
 
 #List all VMs
 function AzureVmList(){
-    Get-AzVM | Export-Csv -Path $directory + "\AzureVMs.csv"
+    Get-AzVM | Export-Csv -Path $directory"\AzureVMs.csv"
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA256 $directory + "\AzureVMs.csv" | Tee-Object -FilePath "$directory + "\AzureVMsHash.txt""
+    Get-FileHash -Algorithm SHA256 $directory"\AzureVMs.csv" | Tee-Object -FilePath "$directory"\AzureVMsHash.txt"
 
-    Write-Host "Azure VM list downloaded to "$directory" +\AzureVMs.csv"
-    sleep 3
+    Write-Host "Azure VM list downloaded to "$directory"\AzureVMs.csv"
+    sleep 5
     menu
 }
 
 #Get all Disks
 function AzureDisks(){
-    Get-AzDisk | Export-Csv -Path $directory + "\AzureDisks.csv"
+    $azDisksFile = -join("$directory","\AzureDisks.csv")
+    Get-AzDisk | Export-Csv -Path $azDisksFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA256 $directory + "\AzureDisks.csv" | Tee-Object -FilePath "$directory + "\AzureDisksHash.txt""
+    Get-FileHash -Algorithm SHA256 $azDisksFile | Tee-Object -FilePath (-join("$directory", "\AzureDisksHash.txt"))
 
-    Write-Host "Azure Activity Log downloaded to "$directory" +\AzureDisks.csv"
-    sleep 3
+    Write-Host "Azure Activity Log downloaded to "$directory"\AzureDisks.csv"
+    sleep 5
     menu
 }
 
 #List all resources
 function AzureResources(){
-    Get-AzResource | Export-Csv -Path $directory + "AzureResources.csv"
+    $azResourcesFile = -join("$directory", "\AzureResources.csv")
+    Get-AzResource | Export-Csv -Path $azResourcesFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureResources.csv" | Tee-Object -FilePath "$directory + "\AzureResourcesHash.txt""
+    Get-FileHash -Algorithm SHA1 $azResourcesFile | Tee-Object -FilePath (-join("$directory","\AzureResourcesHash.txt"))
 
-    Write-Host "Azure resources list downloaded to "$directory" +\AzureResources.csv"
-    sleep 3
+    Write-Host "Azure resources list downloaded to "$directory"\AzureResources.csv"
+    sleep 5
     menu
 }
 
 #Lists all storage accounts in a subscription
 function AzureStorage(){
-    Get-AzStorageAccount | Select StorageAcccountName | Export-Csv -Path $directory + "AzureStorageAccounts.csv"
+    $azStorageFile = -join("$directory", "\AzureStorageAccounts.csv")
+    Get-AzStorageAccount | Select StorageAcccountName | Export-Csv -Path $azStorageFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureStorageAccounts.csv" | Tee-Object -FilePath "$directory + "\AzureStorageAccountsHash.txt""
+    Get-FileHash -Algorithm SHA1 $azStorageFile | Tee-Object -FilePath (-join("$directory","\AzureStorageAccountsHash.txt"))
 
-    Write-Host "Azure storage accounts list downloaded to "$directory" +\AzureStorageAccounts.csv"
-    sleep 3
+    Write-Host "Azure storage accounts list downloaded to "$directory"\AzureStorageAccounts.csv"
+    sleep 5
     menu
 }
 
 #Get Syslogs stored in a storage account
 function Syslog(){
+    $azSyslogFile = -join("$directory", "\AzureSyslog.csv")
     $syslogResourceGroup = Read-Host -Prompt "What is the resource group for the storage account where the logs are stored?"
     $syslogStorageAccountName = Read-Host -Prompt "What is the storage account name where the logs are stored?"
     $syslogStorageAccount = Get-AzStorageAccount -ResourceGroupName $syslogResourceGroup -Name $syslogStorageAccountName
@@ -121,20 +127,20 @@ function Syslog(){
 
     #Get Linux Syslogs
     $syslogTable = (Get-AzStorageTable -Name LinuxSyslogVer2v0 -Context $syslogStorageContext).CloudTable
-    Get-AzTableRow -Table $syslogTable | Export-Csv -Path $directory + "\AzureSyslog.csv"
+    Get-AzTableRow -Table $syslogTable | Export-Csv -Path $azSyslogFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureSyslog.csv" | Tee-Object -FilePath "$directory + "\AzureSyslogHash.txt""
+    Get-FileHash -Algorithm SHA1 $azSyslogFile | Tee-Object -FilePath (-join("$directory","\AzureSyslogHash.txt"))
 
-    Write-Host "Azure Linux VM Syslogs downloaded to "$directory" +\AzureSyslog.csv"
-    sleep 3
+    Write-Host "Azure Linux VM Syslogs downloaded to "$directory"\AzureSyslog.csv"
+    sleep 5
     menu
 }
 
 
 #Get Windows Event Logs
 function Evtlog(){
-
+    $azEvtFile = -join("$directory","\AzureWinEvt.csv")
     $winEvtResourceGroup = Read-Host -Prompt "What is the resource group for the storage account where the logs are stored?"
     $winEvtStorageAccountName = Read-Host -Prompt "What is the storage account name where the logs are stored?"
     $winEvtStorageAccount = Get-AzStorageAccount -ResourceGroupName $winEvtResourceGroup -Name $winEvtStorageAccountName
@@ -143,13 +149,13 @@ function Evtlog(){
     $winEvtStorageContext = $winEvtStorageAccount.Context
 
     $winEvtTable = (Get-AzStorageTable -Name WADWindowsEventLogsTable -Context $winEvtStorageContext).CloudTable
-    Get-AzTableRow -Table $winEvtTable | Export-Csv -Path $directory + "\AzureWinEvt.csv"
+    Get-AzTableRow -Table $winEvtTable | Export-Csv -Path $azEvtFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureWinEvt.csv" | Tee-Object -FilePath "$directory + "\WindowsEventLogHash.txt""
+    Get-FileHash -Algorithm SHA1 $azEvtFile | Tee-Object -FilePath (-join("$directory","\WindowsEventLogHash.txt"))
 
-    Write-Host "Azure Windows VM Event Logs downloaded to "$directory" +\AzureWinEvt.csv"
-    sleep 3
+    Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureWinEvt.csv"
+    sleep 5
     menu
 }
 
@@ -163,10 +169,10 @@ function StorageAnalyticsLogs(){
     $saStorageContext = $saStorageAccount.Context
 
     #Get storage analytics logs
-    Get-AzStorageBlob -Blob "*.log" -Container '$logs' -Context $saStorageContext | Get-AzStorageBlobContent -Destination $directory + "\SA Logging"
+    Get-AzStorageBlob -Blob "*.log" -Container '$logs' -Context $saStorageContext | Get-AzStorageBlobContent -Destination $directory"\SA Logging"
 
-    Write-Host "Azure Storage Analytics logs downloaded to "$directory" +\SA Logging"
-    sleep 3
+    Write-Host "Azure Storage Analytics logs downloaded to "$directory"\SA Logging"
+    sleep 5
     menu
 }
 
@@ -182,8 +188,8 @@ function NsgFlowLogs(){
 
     Get-AzStorageBlob -Context $nsgStorageContext -Container 'insights-logs-networksecuritygroupflowevent' -Blob *.json | Get-AzStorageBlobContent -Destination $directory + "\NSG Logs"
 
-    Write-Host "Azure NSG flow logs downloaded to "$directory" +\NSG Logs"
-    sleep 3
+    Write-Host "Azure NSG flow logs downloaded to "$directory"\NSG Logs"
+    sleep 5
     menu
 }
 
@@ -216,7 +222,7 @@ function AzureSnapshot(){
 
     Write-Host "Azure VM snapshot made with the name "$snapshotName""
     Write-Host "Please log in to the Azure portal and export the snapshot for further analysis"
-    sleep 3
+    sleep 5
     menu
 }
 
@@ -257,13 +263,13 @@ function AzureADSignIns(){
     Connect-AzureAD -TenantId $tenantId
 
     #Get Azure AD Sign-in Audit log
-    Get-AzureADAuditSignInLogs -All $true | Export-Csv -Path $directory + "\AzureADSignIns.csv"
+    Get-AzureADAuditSignInLogs -All $true | Export-Csv -Path "$directory"\AzureADSignIns.csv""
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureADSignIns.csv" | Tee-Object -FilePath "$directory + "\AzureADSignInsHash.txt""
+    Get-FileHash -Algorithm SHA1 $directory + "\AzureADSignIns.csv" | Tee-Object -FilePath "$directory"\AzureADSignInsHash.txt""
 
-    Write-Host "Azure Windows VM Event Logs downloaded to "$directory" +\AzureADSignIns.csv"
-    sleep 3
+    Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADSignIns.csv"
+    sleep 5
     menu
 }
 
@@ -274,13 +280,13 @@ function AzureADAudit(){
     Connect-AzureAD -TenantId $tenantId
 
     #Get Azure AD Audit Logs
-    Get-AzureADAuditDirectoryLogs -All $true | Export-Csv -Path $directory + "\AzureADAudit.csv"
+    Get-AzureADAuditDirectoryLogs -All $true | Export-Csv -Path "$directory"\AzureADAudit.csv""
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureADAudit.csv" | Tee-Object -FilePath "$directory + "\AzureADAuditHash.txt""
+    Get-FileHash -Algorithm SHA1 "$directory"\AzureADAudit.csv"" | Tee-Object -FilePath "$directory"\AzureADAuditHash.txt""
 
-    Write-Host "Azure Windows VM Event Logs downloaded to "$directory" +\AzureADAudit.csv"
-    sleep 3
+    Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADAudit.csv"
+    sleep 5
     menu
 }
 
@@ -296,8 +302,8 @@ function AzureADUsers(){
     #Obtain aquisition hash
     Get-FileHash -Algorithm SHA1 $directory + "\AzureADUsers.csv" | Tee-Object -FilePath "$directory + "\AzureADUsersHash.txt""
 
-    Write-Host "Azure Windows VM Event Logs downloaded to "$directory" +\AzureADUsers.csv"
-    sleep 3
+    Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADUsers.csv"
+    sleep 5
     menu
 }
 
