@@ -233,7 +233,7 @@ function RegisterAzureADApp(){
     Connect-AzureAD -TenantId $tenantId
 
     #Register Azure AD App
-    $appName = "Capstone_Script_Actual"
+    $appName = "Azure_Log_App"
     $appUri = "https://localhost"
     $myapp = New-AzureADApplication -DisplayName $appName -IdentifierUris $appUri
     $startdate = Get-Date
@@ -243,13 +243,13 @@ function RegisterAzureADApp(){
     Import-Module -Name MSCloudIdUtils
     #Install-MSCloudIdUtilsModule
     $cert = New-SelfSignedCertificate -Subject "CN=MSGraph_ReportingAPI" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
-    Export-Certificate -Cert $cert -FilePath "C:\Reporting\MSGraph_ReportingAPI.cer"
-    $clientId = Read-Host -Prompt "What is the App Client ID?"
+    Export-Certificate -Cert $cert -FilePath (-join("$directory","AzureLogAppCert.cer"))
+    $clientId = Read-Host -Prompt "What is the App Client ID? (found in the Azure portal under Azure AD\App registrations\Azure_Log_App)"
     $accessToken = Get-MSCloudIdMsGraphAccessTokenFromCert -TenantDomain $tenantId -ClientId $clientId -Certificate (dir Cert:\CurrentUser\my\"$cert.Thumbprint")
 
     Write-Host "Azure AD app successfully registered"
     Write-Host "Please log in to Azure AD for the subscription and assign the app the appropriate API permissions"
-    Write-Host "Appropriate app permissions are located in AppPermissions.txt"
+    Write-Host "Appropriate app permissions and certificate location are located in AzureAppPermissions.txt"
 
     sleep 5
     menu

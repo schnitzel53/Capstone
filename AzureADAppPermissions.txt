@@ -1,0 +1,37 @@
+1. Navigate to Azure Active Directory -> App registrations -> All applications -> Azure_Log_App -> Certificates & secrets.
+
+2. Under Certificates click Upload certificate, navigate to the directory set in the tool and find AzureAppCert.cer, and upload it.
+
+3. Click on API permissions on the left hand menu and choose Add a permission
+
+4. Choose Microsoft Graph
+
+5. Choose Application permissions
+
+6. Under AuditLog, select AuditLog.Read.All
+
+7. Under Directory, select Directory.Read.All
+
+8. Under IdentityRiskEvent, select IdentityRiskEvent.Read.All
+
+9. Under IdentityUserFlow, select IdentityUserFlow.Read.All
+
+10. Under PrivilegedAccess, choose PrivilegedAccess.Read.AzureAD, PrivilegedAccess.Read.AzureADGroup, and PrivilegedAccess.Read.AzureResources
+
+11. Under Reports, select Reports.Read.All
+
+12. Under RoleManagement, selectRoleManagement.Read.Directory
+
+13. Under SecurityActions, select SecurityActions.Read.All
+
+14. Under SecurityEvents, select SecurityEvents.Read.All
+
+15. Under ThreatIndicators, select ThreatIndicators.Read.All
+
+16. Under UserAuthenticationMethod, select UserAuthenticationMethod.Read.All
+
+17. Under User, select User.Export.All and User.Read.All 
+
+18. Close out of the choose API permissions page and on the Configured permissions page in API permissions, select Grant admin consent for Default Directory
+
+19. After 10-15 minutes, the API permissions should be synced and the app should be able to pull the logs.
