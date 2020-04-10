@@ -1,7 +1,6 @@
 ﻿#Connect to Azure Account
-#Uses Az PowerShell
-#$cred = Get-Credential -Message "Please enter the credentials to connect to the Azure subscrription"
-#Connect-AzAccount -Credential $cred
+$cred = Get-Credential -Message "Please enter the credentials to connect to the Azure subscrription"
+Connect-AzAccount -Credential $cred
 
 #Get directory to save files to
 $directory = Read-Host -Prompt "Please enter a directory to save the files in"
@@ -20,7 +19,7 @@ function Menu(){
     Write-Host "8. Retreive storage account logs"
     Write-Host "9. Retrieve network security group flow logs"
     Write-Host "10. Take a snapshot of an Azure disk"
-    Write-Host "11. Register an Azure AD app (Required for options 11-13)"
+    Write-Host "11. Register an Azure AD app (Required for options 12-14)"
     Write-Host "12. Retrieve a list of all Azure AD users"
     Write-Host "13. Retrieve the Azure AD audit log (Requires Azure AD P2)"
     Write-Host "14. Retrieve the Azure AD sign in log (Requires Azure AD P2)"
@@ -45,7 +44,7 @@ function Menu(){
         13 {AzureADAudit}
         14 {AzureADSignIns}
         15 {InstallAzureModules}
-        16 {exit(0)}
+        16 {cls; exit(0)}
         default {Write-Host "Invalid choice"; sleep 3; menu}
     }
 }
@@ -69,7 +68,7 @@ function AzureVmList(){
     Get-AzVM | Export-Csv -Path $directory"\AzureVMs.csv"
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA256 $directory"\AzureVMs.csv" | Tee-Object -FilePath "$directory"\AzureVMsHash.txt"
+    Get-FileHash -Algorithm SHA256 $directory"\AzureVMs.csv" | Tee-Object -FilePath (-join("$directory","\AzureVMsHash.txt"))
 
     Write-Host "Azure VM list downloaded to "$directory"\AzureVMs.csv"
     sleep 5
@@ -95,7 +94,7 @@ function AzureResources(){
     Get-AzResource | Export-Csv -Path $azResourcesFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $azResourcesFile | Tee-Object -FilePath (-join("$directory","\AzureResourcesHash.txt"))
+    Get-FileHash -Algorithm SHA256 $azResourcesFile | Tee-Object -FilePath (-join("$directory","\AzureResourcesHash.txt"))
 
     Write-Host "Azure resources list downloaded to "$directory"\AzureResources.csv"
     sleep 5
@@ -108,7 +107,7 @@ function AzureStorage(){
     Get-AzStorageAccount | Select StorageAcccountName | Export-Csv -Path $azStorageFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $azStorageFile | Tee-Object -FilePath (-join("$directory","\AzureStorageAccountsHash.txt"))
+    Get-FileHash -Algorithm SHA256 $azStorageFile | Tee-Object -FilePath (-join("$directory","\AzureStorageAccountsHash.txt"))
 
     Write-Host "Azure storage accounts list downloaded to "$directory"\AzureStorageAccounts.csv"
     sleep 5
@@ -130,7 +129,7 @@ function Syslog(){
     Get-AzTableRow -Table $syslogTable | Export-Csv -Path $azSyslogFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $azSyslogFile | Tee-Object -FilePath (-join("$directory","\AzureSyslogHash.txt"))
+    Get-FileHash -Algorithm SHA256 $azSyslogFile | Tee-Object -FilePath (-join("$directory","\AzureSyslogHash.txt"))
 
     Write-Host "Azure Linux VM Syslogs downloaded to "$directory"\AzureSyslog.csv"
     sleep 5
@@ -152,7 +151,7 @@ function Evtlog(){
     Get-AzTableRow -Table $winEvtTable | Export-Csv -Path $azEvtFile
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $azEvtFile | Tee-Object -FilePath (-join("$directory","\WindowsEventLogHash.txt"))
+    Get-FileHash -Algorithm SHA256 $azEvtFile | Tee-Object -FilePath (-join("$directory","\WindowsEventLogHash.txt"))
 
     Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureWinEvt.csv"
     sleep 5
@@ -266,7 +265,7 @@ function AzureADSignIns(){
     Get-AzureADAuditSignInLogs -All $true | Export-Csv -Path "$directory"\AzureADSignIns.csv""
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureADSignIns.csv" | Tee-Object -FilePath "$directory"\AzureADSignInsHash.txt""
+    Get-FileHash -Algorithm SHA256 $directory + "\AzureADSignIns.csv" | Tee-Object -FilePath "$directory"\AzureADSignInsHash.txt""
 
     Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADSignIns.csv"
     sleep 5
@@ -283,7 +282,7 @@ function AzureADAudit(){
     Get-AzureADAuditDirectoryLogs -All $true | Export-Csv -Path "$directory"\AzureADAudit.csv""
 
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 "$directory"\AzureADAudit.csv"" | Tee-Object -FilePath "$directory"\AzureADAuditHash.txt""
+    Get-FileHash -Algorithm SHA256 "$directory"\AzureADAudit.csv"" | Tee-Object -FilePath "$directory"\AzureADAuditHash.txt""
 
     Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADAudit.csv"
     sleep 5
@@ -300,7 +299,7 @@ function AzureADUsers(){
     Get-AzureADUser -All $true | Export-Csv -Path $destination + "\AzureADUsers.csv"
     
     #Obtain aquisition hash
-    Get-FileHash -Algorithm SHA1 $directory + "\AzureADUsers.csv" | Tee-Object -FilePath "$directory + "\AzureADUsersHash.txt""
+    Get-FileHash -Algorithm SHA256 $directory + "\AzureADUsers.csv" | Tee-Object -FilePath "$directory + "\AzureADUsersHash.txt""
 
     Write-Host "Azure Windows VM Event Logs downloaded to "$directory"\AzureADUsers.csv"
     sleep 5
