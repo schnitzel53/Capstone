@@ -162,7 +162,8 @@ function Evtlog(){
 }
 
 function StorageAnalyticsLogs(){
-    $saFile = -join("$directory","\SA Logging")
+    $saFile = -join("$directory","\SA Logging\")
+    mkdir $saFile
     $saResourceGroup = Read-Host -Prompt "What is the resource group for the storage account where the logs are stored?"
     $saStorageAccountName = Read-Host -Prompt "What is the storage account name where the logs are stored?"
     $saStorageAccount = Get-AzStorageAccount -ResourceGroupName $saResourceGroup -Name $saStorageAccountName
@@ -180,7 +181,8 @@ function StorageAnalyticsLogs(){
 
 #Get NSG Flow logs
 function NsgFlowLogs(){
-    $nsgFile = -join("$directory","\NSG Logs")
+    $nsgFile = -join("$directory","\NSG Logs\")
+    mkdir $nsgFile
     $nsgResourceGroup = Read-Host -Prompt "What is the resource group for the storage account where the logs are stored?"
     $nsgStorageAccountName = Read-Host -Prompt "What is the storage account name where the logs are stored?"
     $nsgStorageAccount = Get-AzStorageAccount -ResourceGroupName $nsgResourceGroup -Name $nsgStorageAccountName
