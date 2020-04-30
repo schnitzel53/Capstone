@@ -307,7 +307,7 @@ function AzureADUsers(){
     #Obtain aquisition hash
     Get-FileHash -Algorithm SHA256 $adUsersPath | Tee-Object -FilePath (-join("$directory","AzureADUsersHash.txt"))
 
-    Write-Host "Azure Windows VM Event Logs downloaded to $adUsersPath"
+    Write-Host "Azure AD users downloaded to $adUsersPath"
     sleep 5
     menu
 }
