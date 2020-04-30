@@ -273,7 +273,7 @@ function AzureADSignIns(){
     #Obtain aquisition hash
     Get-FileHash -Algorithm SHA256 $adSigninFile | Tee-Object -FilePath (-join("$directory","\AzureADSignInsHash.txt"))
 
-    Write-Host "Azure Windows VM Event Logs downloaded to $adSigninFile"
+    Write-Host "Azure AD Sign-in Logs downloaded to $adSigninFile"
     sleep 5
     menu
 }
@@ -290,7 +290,7 @@ function AzureADAudit(){
     #Obtain aquisition hash
     Get-FileHash -Algorithm SHA256 $adAuditFile | Tee-Object -FilePath (-join("$directory","\AzureADAuditHash.txt"))
 
-    Write-Host "Azure Windows VM Event Logs downloaded to $adAuditFile"
+    Write-Host "Azure AD Audit Logs downloaded to $adAuditFile"
     sleep 5
     menu
 }
